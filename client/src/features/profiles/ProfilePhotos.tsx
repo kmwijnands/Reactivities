@@ -1,4 +1,4 @@
-import { useParams } from "react-router"
+import { useParams } from "react-router";
 import { useProfile } from "../../lib/hooks/useProfile";
 import { Box, Button, Divider, ImageList, ImageListItem, Typography } from "@mui/material";
 import { useState } from "react";
@@ -6,12 +6,16 @@ import PhotoUploadWidget from "../../app/shared/components/PhotoUploadWidget";
 import StarButton from "../../app/shared/components/StarButton";
 import DeleteButton from "../../app/shared/components/DeleteButton";
 
+// Displays user photos and allows the current user to manage them
+
 export default function ProfilePhotos() {
     const { id } = useParams();
     const { photos, loadingPhotos, isCurrentUser, uploadPhoto,
         profile, setMainPhoto, deletePhoto } = useProfile(id);
+    // when true we show the photo upload widget instead of the grid
     const [editMode, setEditMode] = useState(false);
 
+    // called by the upload widget once cropping is complete
     const handlePhotoUpload = (file: Blob) => {
         uploadPhoto.mutate(file, {
             onSuccess: () => {
@@ -24,6 +28,7 @@ export default function ProfilePhotos() {
 
     if (!photos) return <Typography>No photos found for this user</Typography>
 
+    // render grid of photos or the upload widget
     return (
         <Box>
 

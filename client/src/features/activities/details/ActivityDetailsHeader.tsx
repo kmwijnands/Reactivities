@@ -4,6 +4,8 @@ import { formatDate } from "../../../lib/util/util";
 import { useActivities } from "../../../lib/hooks/useActivities";
 import StyledButton from "../../../app/shared/components/StyledButton";
 
+// Banner image and action buttons for the activity details page
+
 type Props = {
     activity: Activity
 }
@@ -11,6 +13,7 @@ type Props = {
 export default function ActivityDetailsHeader({activity}: Props) {
     const {updateAttendance} = useActivities(activity.id);
 
+    // card background image and host/join buttons
     return (
         <Card sx={{ position: 'relative', mb: 2, backgroundColor: 'transparent', overflow: 'hidden' }}>
             {activity.isCancelled && (
