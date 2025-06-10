@@ -5,13 +5,17 @@ import { useAccount } from "./useAccount";
 import { useStore } from "./useStore";
 import { FieldValues } from "react-hook-form";
 
+// Central hook for all activity related server interactions and caching
+
 export const useActivities = (id?: string) => {
+    // access filter and startDate from MobX store
     const {activityStore: {filter, startDate}} = useStore();
     const queryClient = useQueryClient();
     const { currentUser } = useAccount();
     const location = useLocation();
 
-    const { data: activitiesGroup, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } 
+    // load the activities list with infinite scrolling support
+    const { data: activitiesGroup, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage }
         = useInfiniteQuery<PagedList<Activity, string>>({
         queryKey: ['activities', filter, startDate],
         queryFn: async ({pageParam = null}) => {
@@ -46,6 +50,7 @@ export const useActivities = (id?: string) => {
         })
     });
 
+    // load a single activity when an id is supplied
     const { data: activity, isLoading: isLoadingActivity } = useQuery({
         queryKey: ['activities', id],
         queryFn: async () => {
@@ -64,6 +69,7 @@ export const useActivities = (id?: string) => {
         }
     })
 
+    // PUT updated activity details to the server
     const updateActivity = useMutation({
         mutationFn: async (activity: Activity) => {
             await agent.put('/activities', activity)
@@ -75,6 +81,7 @@ export const useActivities = (id?: string) => {
         }
     })
 
+    // POST a brand new activity
     const createActivity = useMutation({
         mutationFn: async (activity: FieldValues) => {
             const response = await agent.post('/activities', activity);
@@ -87,6 +94,7 @@ export const useActivities = (id?: string) => {
         }
     });
 
+    // remove an activity completely
     const deleteActivity = useMutation({
         mutationFn: async (id: string) => {
             await agent.delete(`/activities/${id}`)
@@ -98,6 +106,7 @@ export const useActivities = (id?: string) => {
         }
     });
 
+    // join/leave or cancel an activity - optimistic update
     const updateAttendance = useMutation({
         mutationFn: async (id: string) => {
             await agent.post(`/activities/${id}/attend`)
@@ -141,6 +150,7 @@ export const useActivities = (id?: string) => {
         }
     })
 
+    // expose server state and mutation helpers to consumers
     return {
         activitiesGroup,
         isFetchingNextPage,

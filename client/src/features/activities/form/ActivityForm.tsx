@@ -11,7 +11,10 @@ import { categoryOptions } from "./categoryOptions";
 import DateTimeInput from "../../../app/shared/components/DateTimeInput";
 import LocationInput from "../../../app/shared/components/LocationInput";
 
+// Form used for creating and editing activities
+
 export default function ActivityForm() {
+    // setup react-hook-form with zod validation
     const { control, reset, handleSubmit } = useForm<ActivitySchema>({
         mode: 'onTouched',
         resolver: zodResolver(activitySchema)
@@ -20,6 +23,7 @@ export default function ActivityForm() {
     const { id } = useParams();
     const { updateActivity, createActivity, activity, isLoadingActivity } = useActivities(id);
 
+    // populate form when editing an existing activity
     useEffect(() => {
         if (activity) reset({
             ...activity,
@@ -32,6 +36,7 @@ export default function ActivityForm() {
         });
     }, [activity, reset]);
 
+    // send form data to create or update the activity
     const onSubmit = async (data: ActivitySchema) => {
         const {location, ...rest} = data; 
         const flattenedData = {...rest, ...location};
@@ -52,6 +57,7 @@ export default function ActivityForm() {
 
     if (isLoadingActivity) return <Typography>Loading activity...</Typography>
 
+    // render the activity form with inputs and submit button
     return (
         <Paper sx={{ borderRadius: 3, padding: 3 }}>
             <Typography variant="h5" gutterBottom color="primary">

@@ -5,11 +5,14 @@ import { timeAgo } from "../../../lib/util/util";
 import { FieldValues, useForm } from "react-hook-form";
 import { observer } from "mobx-react-lite";
 
+// Real-time chat for an activity using SignalR
+
 const ActivityDetailsChat = observer(function ActivityDetailsChat() {
     const { id } = useParams();
     const { commentStore } = useComments(id);
     const {register, handleSubmit, reset, formState: {isSubmitting}} = useForm();
 
+    // send the comment to the SignalR hub
     const addComment = async (data: FieldValues) => {
         try {
             await commentStore.hubConnection?.invoke('SendComment', {
@@ -22,6 +25,7 @@ const ActivityDetailsChat = observer(function ActivityDetailsChat() {
         }
     }
 
+    // allow submit via Enter but support multiline with Shift+Enter
     const handleKeyPress = (event: React.KeyboardEvent<HTMLDivElement>) => {
         if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
@@ -29,6 +33,7 @@ const ActivityDetailsChat = observer(function ActivityDetailsChat() {
         }
     }
 
+    // chat UI with message input and scrollable history
     return (
         <>
             <Box

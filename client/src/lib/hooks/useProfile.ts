@@ -1,12 +1,17 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
-import agent from "../api/agent"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import agent from "../api/agent";
 import { useMemo, useState } from "react";
 import { EditProfileSchema } from "../schemas/editProfileSchema";
 
+// Hook used throughout the profile pages for loading and mutating
+// profile related data such as photos, followings and user activities.
+
 export const useProfile = (id?: string, predicate?: string) => {
+    // filter is used for loading user activities (past, hosting etc.)
     const [filter, setFilter] = useState<string | null>(null);
     const queryClient = useQueryClient();
 
+    // fetch the main profile information
     const { data: profile, isLoading: loadingProfile } = useQuery<Profile>({
         queryKey: ['profile', id],
         queryFn: async () => {
@@ -16,6 +21,7 @@ export const useProfile = (id?: string, predicate?: string) => {
         enabled: !!id && !predicate
     })
 
+    // fetch the user's photos
     const {data: photos, isLoading: loadingPhotos} = useQuery<Photo[]>({
         queryKey: ['photos', id],
         queryFn: async () => {
@@ -25,6 +31,7 @@ export const useProfile = (id?: string, predicate?: string) => {
         enabled: !!id && !predicate
     });
 
+    // fetch lists of followers/following when required
     const {data: followings, isLoading: loadingFollowings} = useQuery<Profile[]>({
         queryKey: ['followings', id, predicate],
         queryFn: async () => {
@@ -35,6 +42,7 @@ export const useProfile = (id?: string, predicate?: string) => {
         enabled: !!id && !!predicate
     });
 
+    // fetch activities the user has attended/hosted etc.
     const {data: userActivities, isLoading: loadingUserActivities} = useQuery({
         queryKey: ['user-activities', filter],
         queryFn: async () => {
@@ -48,6 +56,7 @@ export const useProfile = (id?: string, predicate?: string) => {
         enabled: !!id && !!filter
     });
 
+    // upload a new profile photo and update cached data
     const uploadPhoto = useMutation({
         mutationFn: async (file: Blob) => {
             const formData = new FormData();
@@ -78,6 +87,7 @@ export const useProfile = (id?: string, predicate?: string) => {
         }
     })
 
+    // set the selected photo as the main profile photo
     const setMainPhoto = useMutation({
         mutationFn: async (photo: Photo) => {
             await agent.put(`/profiles/${photo.id}/setMain`)
@@ -100,6 +110,7 @@ export const useProfile = (id?: string, predicate?: string) => {
         }
     })
 
+    // remove an existing photo from the profile
     const deletePhoto = useMutation({
         mutationFn: async (photoId: string) => {
             await agent.delete(`/profiles/${photoId}/photos`)
@@ -111,6 +122,7 @@ export const useProfile = (id?: string, predicate?: string) => {
         }
     });
 
+    // update the profile display name or bio
     const updateProfile = useMutation({
         mutationFn: async (profile: EditProfileSchema) => {
             await agent.put(`/profiles`, profile);
@@ -134,6 +146,7 @@ export const useProfile = (id?: string, predicate?: string) => {
         }
     })
 
+    // follow or unfollow the profile user
     const updateFollowing = useMutation({
         mutationFn: async () => {
             await agent.post(`/profiles/${id}/follow`)
@@ -157,6 +170,7 @@ export const useProfile = (id?: string, predicate?: string) => {
         return id === queryClient.getQueryData<User>(['user'])?.id
     }, [id, queryClient])
 
+    // expose all query results and mutation helpers to consumers
     return {
         profile,
         loadingProfile,

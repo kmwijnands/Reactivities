@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import { useAccount } from "../../lib/hooks/useAccount"
+import { useAccount } from "../../lib/hooks/useAccount";
 import { loginSchema, LoginSchema } from "../../lib/schemas/loginSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Box, Button, Paper, Typography } from "@mui/material";
@@ -9,7 +9,10 @@ import { Link, useLocation, useNavigate } from "react-router";
 import { useState } from "react";
 import { toast } from "react-toastify";
 
+// Login form component allowing users to sign in or resend verification emails
+
 export default function LoginForm() {
+    // track if the user attempted login without verifying email
     const [notVerified, setNotVerified] = useState(false);
     const { loginUser, resendConfirmationEmail } = useAccount();
     const navigate = useNavigate();
@@ -20,6 +23,7 @@ export default function LoginForm() {
     });
     const email = watch('email');
 
+    // resend the account verification email
     const handleResendEmail = async () => {
         try {
 
@@ -31,6 +35,7 @@ export default function LoginForm() {
         }
     }
 
+    // attempt a username/password login
     const onSubmit = async (data: LoginSchema) => {
         await loginUser.mutateAsync(data, {
             onSuccess: () => {
@@ -44,6 +49,7 @@ export default function LoginForm() {
         });
     }
 
+    // redirect the user to GitHub's OAuth flow
     const loginWithGithub = () => {
         const clientId = import.meta.env.VITE_GIHUB_CLIENT_ID;
         const redirectUrl = import.meta.env.VITE_REDIRECT_URL;
@@ -51,6 +57,7 @@ export default function LoginForm() {
             `https://github.com/login/oauth/authorize?client_id=${clientId}&redirectUri=${redirectUrl}&scope=read:user user:email`
     }
 
+    // render the login form UI
     return (
         <Paper
             component='form'

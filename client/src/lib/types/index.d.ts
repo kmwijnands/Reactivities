@@ -1,3 +1,4 @@
+// Shared types used across the client application
 type PagedList<T, TCursor> = {
   items: T[],
   nextCursor: TCursor

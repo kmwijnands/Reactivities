@@ -1,9 +1,11 @@
 import { CloudUpload } from "@mui/icons-material";
 import { Box, Button, Grid2, Typography } from "@mui/material";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { useDropzone } from 'react-dropzone'
+import { useDropzone } from 'react-dropzone';
 import Cropper, { ReactCropperElement } from "react-cropper";
 import "cropperjs/dist/cropper.css";
+
+// Three step widget used to upload and crop profile photos
 
 type Props = {
     uploadPhoto: (file: Blob) => void
@@ -14,18 +16,21 @@ export default function PhotoUploadWidget({uploadPhoto, loading}: Props) {
     const [files, setFiles] = useState<object & { preview: string; }[]>([]);
     const cropperRef = useRef<ReactCropperElement>(null);
 
+    // cleanup object URLs when component unmounts
     useEffect(() => {
         return () => {
             files.forEach(file => URL.revokeObjectURL(file.preview))
         }
     }, [files]);
 
+    // handle file drop and store preview URLs
     const onDrop = useCallback((acceptedFiles: File[]) => {
         setFiles(acceptedFiles.map(file => Object.assign(file, {
             preview: URL.createObjectURL(file as Blob)
         })))
     }, []);
 
+    // crop the selected image and send it back to parent
     const onCrop = useCallback(() => {
         const cropper = cropperRef.current?.cropper;
         cropper?.getCroppedCanvas().toBlob(blob => {
@@ -35,6 +40,7 @@ export default function PhotoUploadWidget({uploadPhoto, loading}: Props) {
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop })
 
+    // UI broken into three columns: add, crop and preview
     return (
         <Grid2 container spacing={3}>
             <Grid2 size={4}>
