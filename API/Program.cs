@@ -1,3 +1,4 @@
+using Application.Activities.Queries;
 using Microsoft.EntityFrameworkCore;
 using Persistence;
 
@@ -11,6 +12,8 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 builder.Services.AddCors();
+builder.Services.AddMediatR(x =>
+x.RegisterServicesFromAssemblyContaining<GetActivityList.Handler>());
 
 var app = builder.Build();
 
@@ -20,19 +23,21 @@ app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localho
 app.MapControllers();
 
 using var scope = app.Services.CreateScope();
-var services = scope. ServiceProvider;
+var services = scope.ServiceProvider;
 
-try {
+try
+{
 
-var context = services. GetRequiredService<AppDbContext>();
-await context.Database.MigrateAsync();
-await DbInitializer.SeedData(context);
+    var context = services.GetRequiredService<AppDbContext>();
+    await context.Database.MigrateAsync();
+    await DbInitializer.SeedData(context);
 
-} 
-catch (Exception ex) {
+}
+catch (Exception ex)
+{
 
-var logger = services. GetRequiredService<ILogger<Program>>();
-logger.LogError(ex, "An error occurred during migration.");
+    var logger = services.GetRequiredService<ILogger<Program>>();
+    logger.LogError(ex, "An error occurred during migration.");
 
 }
 app.UseHttpsRedirection();
